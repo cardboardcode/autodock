@@ -19,9 +19,10 @@ import math
 import argparse
 
 import rospy
-from std_srvs.srv import Trigger
+from std_srvs.srv import Trigger, TriggerResponse
 from sensor_msgs.msg import BatteryState
 
+from autodock_core.msg import AutoDockingActionGoal
 from autodock_core.autodock_utils import DockState
 import autodock_core.autodock_utils as utils
 from autodock_core.autodock_server import AutoDockServer, AutoDockConfig
@@ -122,6 +123,10 @@ class AutoDockStateMachine(AutoDockServer):
 
         super().__init__(self.cfg, run_server)
         self.dock_state = DockState.IDLE
+
+        # create proxy trigger service to initiate docking request for ease
+        self.dock_srv = rospy.Service(
+            '/simple_autodock/dock', Trigger, self.trigger_dock_cb)
 
     def init_params(self):
         rospy.loginfo("Getting AutoDockServer params from rosparams server")
@@ -500,6 +505,18 @@ class AutoDockStateMachine(AutoDockServer):
         self.set_state(DockState.ACTIVATE_CHARGER, "Celebration!!")
         return True
 
+    def trigger_dock_cb(self, srv):
+        """
+        Initiate docking through trigger request
+        """
+        goal_pub = rospy.Publisher(
+            "/autodock_action/goal", AutoDockingActionGoal, queue_size=10)
+        msg_pub = AutoDockingActionGoal()
+        goal_pub.publish(msg_pub)
+        srv_resp = TriggerResponse()
+        srv_resp.message = "Autodock request submitted"
+        srv_resp.success = True
+        return srv_resp
 
 ##############################################################################
 if __name__ == "__main__":
