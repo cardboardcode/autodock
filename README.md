@@ -113,19 +113,27 @@ Please ensures that entire pipeline of the turtlebot works before proceeding wit
 autodock tb3 demo below. Once done with mapping, you can start with the `autodock` simulation:
 
 ```bash
-# 1. launch turtlebot3 gazebo world, and also autodock_server
-roslaunch autodock_sim tb3_nav_dock_sim.launch
+docker build -t tb3_autodock_sim:latest .
+```
 
-# 2. launch navigation stack, with provided map
-## New Terminal
-export TURTLEBOT3_MODEL=burger
-roslaunch turtlebot3_navigation turtlebot3_navigation.launch map_file:=$HOME/map.yaml open_rviz:=0
+```bash
+xhost +local:docker
+```
 
-# 3. Now, localize the robot and move the robot around the world. 
+```bash
+docker run -it --rm \
+ --name tb3_autodock_sim_c \
+ -e DISPLAY=$DISPLAY \
+ -e TURTLEBOT3_MODEL="burger" \
+ -e GAZEBO_MODEL_PATH=/home/ubuntu/catkin_ws/src/rwa3_group/models \
+ -v /tmp/.X11-unix:/tmp/.X11-unix \
+ --network host \
+ tb3_autodock_sim:latest bash -c \
+ "source /root/catkin_ws/devel/setup.bash && roslaunch autodock_sim tb3_nav_dock_sim.launch"
+```
 
-# 4. send a dock action. make sure that the robot's camera is facing the charger
-## New Terminal
-rostopic pub /autodock_action/goal autodock_core/AutoDockingActionGoal {} --once
+```bash
+docker exec -it tb3_autodock_sim_c bash -c "source /ros_entrypoint.sh && rostopic pub /autodock_action/goal autodock_core/AutoDockingActionGoal {} --once"
 ```
 
 This will also demonstrate how the simple `obstacle_observer` works. 
