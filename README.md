@@ -42,6 +42,9 @@ cd autodock
 docker build -t tb3_autodock_sim:latest .
 ```
 
+```bash
+xhost +local:docker
+```
 
 ## Architecture Diagram
 
@@ -109,11 +112,21 @@ rosrun autodock_examples dock_sim_test.py -c 10
 This demonstrates front dock with turtlebot3, attached with a front camera. 
 A smaller docking station is used here.
 
- - dependency: `sudo apt install ros-noetic-turtlebot3-gazebo`
+```bash
+docker run -it --rm \
+ --name tb3_autodock_sim_c \
+ -e DISPLAY=$DISPLAY \
+ -e TURTLEBOT3_MODEL="burger" \
+ -e GAZEBO_MODEL_PATH=/home/ubuntu/catkin_ws/src/rwa3_group/models \
+ -v /tmp/.X11-unix:/tmp/.X11-unix \
+ --network host \
+ tb3_autodock_sim:latest bash -c \
+ "source /root/catkin_ws/devel/setup.bash && roslaunch autodock_sim tb3_dock_sim.launch"
+```
 
 ```bash
-roslaunch autodock_sim tb3_dock_sim.launch
-rostopic pub /autodock_action/goal autodock_core/AutoDockingActionGoal {} --once
+
+docker exec -it tb3_autodock_sim_c bash -c "source /ros_entrypoint.sh && rostopic pub /autodock_action/goal autodock_core/AutoDockingActionGoal {} --once"
 ```
 
 ---
@@ -132,9 +145,7 @@ Once done, continue to follow the steps to launch and map the world with a `burg
 Please ensures that entire pipeline of the turtlebot works before proceeding with the 
 autodock tb3 demo below. Once done with mapping, you can start with the `autodock` simulation:
 
-```bash
-xhost +local:docker
-```
+
 
 ```bash
 docker run -it --rm \
