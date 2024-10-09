@@ -7,8 +7,8 @@
 
   <!-- Spawn tb3 pose -->
   <arg name="x_pos" default="0.5"/>
-  <arg name="y_pos" default="-0.05"/>
-  <arg name="yaw" default="0"/>
+  <arg name="y_pos" default=" 0.45"/>
+  <arg name="yaw" default="3.14159"/>
 
   <param name="/use_sim_time" value="$(arg use_sim_time)"/>
   <!-- This is to ensure that the costmap is constantly and fully published to the topic -->

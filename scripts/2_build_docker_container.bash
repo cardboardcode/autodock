@@ -10,5 +10,5 @@ docker run -it --rm \
  -v /tmp/.X11-unix:/tmp/.X11-unix \
  --network host \
  tb3_autodock_sim:latest bash -c \
- "source /root/catkin_ws/devel/setup.bash && roslaunch autodock_sim tb3_dock_sim.launch"
+ "source /root/catkin_ws/devel/setup.bash && roslaunch autodock_sim tb3_nav_dock_sim.launch"
 

@@ -10,7 +10,7 @@ SHELL ["bash", "-c"]
 # add install deps
 RUN apt-get update && apt-get install -y --no-install-recommends \
   nano \
-  ros-noetic-turtlebot3-gazebo \
+  ros-noetic-teleop-twist-keyboard \
   git && \
   rm -rf /var/lib/apt/lists/*
 
