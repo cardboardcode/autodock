@@ -27,11 +27,22 @@ Dependencies
  - [Turtlebot Simulation](http://wiki.ros.org/turtlebot3_simulations) ** Optional
 
 ```bash
-# First, clone repos and deps to 'catkin_ws/src', then install
-cd catkin_ws
-rosdep update && rosdep install --from-paths src --ignore-src -yr
-catkin_make
+cd $HOME
 ```
+
+```bash
+git clone https://github.com/cardboardcode/autodock.git --branch devel --depth 1 --single-branch
+```
+
+```bash
+cd autodock
+```
+
+```bash
+docker build -t tb3_autodock_sim:latest .
+```
+
+
 ## Architecture Diagram
 
 ![](docs/architecture.png)
@@ -45,8 +56,17 @@ catkin_make
 ## Run Examples on Simulation with MockRobot
 
 Run `MockRobot` in gazebo world
+
 ```bash
-roslaunch autodock_sim dock_sim.launch
+docker run -it --rm \
+ --name tb3_autodock_sim_c \
+ -e DISPLAY=$DISPLAY \
+ -e TURTLEBOT3_MODEL="burger" \
+ -e GAZEBO_MODEL_PATH=/home/ubuntu/catkin_ws/src/rwa3_group/models \
+ -v /tmp/.X11-unix:/tmp/.X11-unix \
+ --network host \
+ tb3_autodock_sim:latest bash -c \
+ "source /root/catkin_ws/devel/setup.bash && roslaunch autodock_sim dock_sim.launch"
 ```
 
 try to send an action goal request
@@ -113,10 +133,6 @@ Please ensures that entire pipeline of the turtlebot works before proceeding wit
 autodock tb3 demo below. Once done with mapping, you can start with the `autodock` simulation:
 
 ```bash
-docker build -t tb3_autodock_sim:latest .
-```
-
-```bash
 xhost +local:docker
 ```
 
@@ -141,18 +157,6 @@ Try place an obstacle near the robot during docking and see if it pauses.
 
 > Note: the current `obstacle_observer` will only `pause` if it is 
 in `predock`, `steer_dock`, or `parralel_correction` state.
-
----
-
-### Docker Container
-
-A docker file is provieded to buid a container for autodock. Follow these steps:
-
-```bash
-cd catkin_ws/src/autodock
-docker build -t osrf/autodock:v1 .
-docker run -it --network host osrf/autodock:v1 bash -c "$COMMAND"
-```
 
 ---
 
